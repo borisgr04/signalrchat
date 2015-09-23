@@ -1,0 +1,52 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+    <!-- Referencia a Jquery -->
+    <script src="Scripts/jquery-1.10.2.min.js"></script>
+    <!-- Referencia a SignalR Client-->
+    <script src="Scripts/jquery.signalR-2.2.0.min.js"></script>
+    <!-- Referencia a archivo de proxy autogenerado  -->
+    <script src="signalr/hubs"></script>
+    <script>
+        $(document).ready(function () {
+            var _name = window.prompt("Digite su nombre");
+            $("#spnName").text(_name);
+            $("#txtMsg").val('');
+            //Obtener la instancia del proxy autogenrado
+            var chatProxy = $.connection.signalRChatHub;
+            //Enlazar Evento clie, cuando el hub es iniciado.
+            $.connection.hub.start().done(function () {
+                $("#btnSend").click(function () {
+                    //Enviar mensaje al Hub usando la instancia del proxy
+                    chatProxy.server.broadCastMessage($("#spnName").text(), $("#txtMsg").val());
+                    $("#txtMsg").val('').focus();
+                });
+            });
+            chatProxy.client.receiveMessage = function (msgFrom, msg) {
+                $("#divChat").append('<li><strong>' + msgFrom + '</strong> ' + msg + '</li>');
+            }
+
+        });
+    </script>
+</head>
+<body>
+    <div style="width: 50%; border: solid 1px red; height:40px">
+        <h3 style="margin: 10px 0px 0px 0px">
+            <span id="spnName"></span>
+        </h3>
+    </div>
+    <div style="width: 50%; border: solid 1px red; height:200px">
+        <div style="height: 70%" id="divChat"></div>
+        <div style="border: dashed 1px Black">
+            <div style="float: left; width:70%; padding: 4px">
+                <input type="text" style="width: 100%" id="txtMsg" />
+            </div>
+            <div style="float: right; width:19%; padding: 4px">
+                <input type="button" style="width: 45px" id="btnSend" value="Enviar" />
+            </div>
+        </div>
+    </div>
+</body>
+</html>
